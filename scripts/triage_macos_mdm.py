@@ -229,14 +229,14 @@ class MacOSMdmTriageEngine:
 
         # Check Bootstrap Token on Apple Silicon
         arch = str(self.raw_data.get("architecture", "arm64")).lower()
-        if arch in ("arm64", "aarch64") and not mdm.get("bootstrap_token_escrowed", True):
+        if arch in ("arm64", "aarch64", "arm64e") and not mdm.get("bootstrap_token_escrowed", True):
             return TriageFinding(
                 domain_number=1,
                 domain_name="MDM Enrollment & APNs Channel",
                 status="WARN",
                 root_cause_summary="Apple Silicon Mac is missing Bootstrap Token escrow, preventing automated kernel and software authorizations.",
                 technical_evidence=[
-                    "Hardware Architecture: Apple Silicon (arm64)",
+                    f"Hardware Architecture: Apple Silicon ({arch})",
                     "'profiles status -type bootstraptoken' reports escrowed to MDM: No"
                 ],
                 remediation_steps_user=["Log into the Mac with a SecureToken-enabled administrator account."],
@@ -253,74 +253,86 @@ class MacOSMdmTriageEngine:
         mdm = self.raw_data.get("mdm_status") or {}
         is_supervised = mdm.get("supervised", False) if isinstance(mdm, dict) else False
 
-        profiles = self.raw_data.get("installed_profiles") or []
-        if isinstance(profiles, list):
-            for p in profiles:
-                if not isinstance(p, dict):
-                    continue
+        profiles_raw = self.raw_data.get("installed_profiles") or []
+        if isinstance(profiles_raw, dict):
+            profiles = [profiles_raw]
+        elif isinstance(profiles_raw, list):
+            profiles = profiles_raw
+        else:
+            profiles = []
 
-                install_err = p.get("install_error_code")
-                payload_type = p.get("payload_type", "Unknown Payload")
+        for p in profiles:
+            if not isinstance(p, dict):
+                continue
 
-                # Error -20109: Payload requires supervision
-                if install_err == -20109 or p.get("supervision_required") and not is_supervised:
-                    return TriageFinding(
-                        domain_number=2,
-                        domain_name="Configuration Profile Validity & Supervision",
-                        status="FAIL",
-                        root_cause_summary=f"Configuration profile '{p.get('profile_name', 'Unknown')}' was rejected because the Mac is not Apple Supervised.",
-                        technical_evidence=[
-                            f"Profile Identifier: {p.get('payload_identifier')}",
-                            f"Payload Type: {payload_type}",
-                            f"Installer CoreOS Error: {install_err} (Payload restriction requires Device Supervision)",
-                            "Endpoint State: Supervised = No (User-enrolled Mac)"
-                        ],
-                        remediation_steps_user=["Contact IT support to enroll device via company Automated Device Enrollment (ADE)."],
-                        remediation_steps_admin=[
-                            "Device must be wiped and re-enrolled via Apple Business Manager (DEP/ADE) for supervision.",
-                            "Alternatively, remove supervised-only restrictions (e.g., com.apple.applicationaccess) from the profile payload."
-                        ],
-                        escalation_priority="P2 - High"
-                    )
+            raw_err = p.get("install_error_code")
+            try:
+                install_err = int(str(raw_err).strip()) if raw_err is not None else None
+            except (ValueError, TypeError, OverflowError):
+                install_err = None
 
-                # Error -20108: Signature validation failed
-                if install_err == -20108:
-                    return TriageFinding(
-                        domain_number=2,
-                        domain_name="Configuration Profile Validity & Supervision",
-                        status="FAIL",
-                        root_cause_summary=f"Configuration profile '{p.get('profile_name', 'Unknown')}' signature validation failed (Error -20108).",
-                        technical_evidence=[
-                            f"Profile Identifier: {p.get('payload_identifier')}",
-                            "CoreOS Error -20108: Verification failed or signing certificate untrusted/revoked."
-                        ],
-                        remediation_steps_user=["Verify network connectivity to Apple certificate verification servers."],
-                        remediation_steps_admin=[
-                            "Re-sign mobileconfig profile with valid enterprise signing certificate.",
-                            "Verify intermediate and root CA certificates are installed on endpoint."
-                        ],
-                        escalation_priority="P2 - High"
-                    )
+            payload_type = p.get("payload_type", "Unknown Payload")
+            supervision_req = bool(p.get("supervision_required", False))
 
-                # Error -20110: Duplicate UUID / Payload collision
-                if install_err == -20110 or p.get("duplicate_uuid"):
-                    return TriageFinding(
-                        domain_number=2,
-                        domain_name="Configuration Profile Validity & Supervision",
-                        status="FAIL",
-                        root_cause_summary=f"Profile '{p.get('profile_name', 'Unknown')}' collided with an already installed payload UUID (Error -20110).",
-                        technical_evidence=[
-                            f"Conflicting Payload Identifier: {p.get('payload_identifier')}",
-                            f"Profile UUID: {p.get('profile_uuid', 'Unknown')}",
-                            "CoreOS Error -20110: Payload UUID already exists in system profile database."
-                        ],
-                        remediation_steps_user=["No action required by user. Issue must be resolved in MDM console."],
-                        remediation_steps_admin=[
-                            "Regenerate a unique PayloadUUID in the profile XML before redeploying.",
-                            "Remove legacy profile with 'sudo profiles remove -identifier <ID>'."
-                        ],
-                        escalation_priority="P3 - Medium"
-                    )
+            # Error -20109: Payload requires supervision
+            if install_err == -20109 or (supervision_req and not is_supervised):
+                return TriageFinding(
+                    domain_number=2,
+                    domain_name="Configuration Profile Validity & Supervision",
+                    status="FAIL",
+                    root_cause_summary=f"Configuration profile '{p.get('profile_name', 'Unknown')}' was rejected because the Mac is not Apple Supervised.",
+                    technical_evidence=[
+                        f"Profile Identifier: {p.get('payload_identifier')}",
+                        f"Payload Type: {payload_type}",
+                        f"Installer CoreOS Error: {install_err} (Payload restriction requires Device Supervision)",
+                        "Endpoint State: Supervised = No (User-enrolled Mac)"
+                    ],
+                    remediation_steps_user=["Contact IT support to enroll device via company Automated Device Enrollment (ADE)."],
+                    remediation_steps_admin=[
+                        "Device must be wiped and re-enrolled via Apple Business Manager (DEP/ADE) for supervision.",
+                        "Alternatively, remove supervised-only restrictions (e.g., com.apple.applicationaccess) from the profile payload."
+                    ],
+                    escalation_priority="P2 - High"
+                )
+
+            # Error -20108: Signature validation failed
+            if install_err == -20108:
+                return TriageFinding(
+                    domain_number=2,
+                    domain_name="Configuration Profile Validity & Supervision",
+                    status="FAIL",
+                    root_cause_summary=f"Configuration profile '{p.get('profile_name', 'Unknown')}' signature validation failed (Error -20108).",
+                    technical_evidence=[
+                        f"Profile Identifier: {p.get('payload_identifier')}",
+                        "CoreOS Error -20108: Verification failed or signing certificate untrusted/revoked."
+                    ],
+                    remediation_steps_user=["Verify network connectivity to Apple certificate verification servers."],
+                    remediation_steps_admin=[
+                        "Re-sign mobileconfig profile with valid enterprise signing certificate.",
+                        "Verify intermediate and root CA certificates are installed on endpoint."
+                    ],
+                    escalation_priority="P2 - High"
+                )
+
+            # Error -20110: Duplicate UUID / Payload collision
+            if install_err == -20110 or p.get("duplicate_uuid"):
+                return TriageFinding(
+                    domain_number=2,
+                    domain_name="Configuration Profile Validity & Supervision",
+                    status="FAIL",
+                    root_cause_summary=f"Profile '{p.get('profile_name', 'Unknown')}' collided with an already installed payload UUID (Error -20110).",
+                    technical_evidence=[
+                        f"Conflicting Payload Identifier: {p.get('payload_identifier')}",
+                        f"Profile UUID: {p.get('profile_uuid', 'Unknown')}",
+                        "CoreOS Error -20110: Payload UUID already exists in system profile database."
+                    ],
+                    remediation_steps_user=["No action required by user. Issue must be resolved in MDM console."],
+                    remediation_steps_admin=[
+                        "Regenerate a unique PayloadUUID in the profile XML before redeploying.",
+                        "Remove legacy profile with 'sudo profiles remove -identifier <ID>'."
+                    ],
+                    escalation_priority="P3 - Medium"
+                )
 
         return None
 
@@ -328,7 +340,11 @@ class MacOSMdmTriageEngine:
         install_errs = self.raw_data.get("install_log_findings") or []
         if isinstance(install_errs, str):
             install_errs = [install_errs]
-        elif not isinstance(install_errs, list):
+        elif isinstance(install_errs, dict):
+            install_errs = [str(v) for v in install_errs.values()]
+        elif isinstance(install_errs, list):
+            install_errs = [str(e) for e in install_errs if e is not None]
+        else:
             install_errs = []
 
         combined_text = "\n".join(str(e) for e in install_errs)
@@ -411,8 +427,10 @@ class MacOSMdmTriageEngine:
 
     def _check_domain4_agent_daemons(self) -> Optional[TriageFinding]:
         daemons = self.raw_data.get("agent_daemons") or {}
-        if not isinstance(daemons, dict):
-            return None
+        if isinstance(daemons, list):
+            daemons = {str(d).lower(): True for d in daemons}
+        elif not isinstance(daemons, dict):
+            daemons = {}
 
         mdm_url = str((self.raw_data.get("mdm_status") or {}).get("mdm_server_url", "")).lower()
 
@@ -492,19 +510,23 @@ class MacOSMdmTriageEngine:
             )
 
         sec = self.raw_data.get("security_state") or {}
-        if isinstance(sec, dict):
-            sip = str(sec.get("system_integrity_protection", "")).lower()
-            if "disabled" in sip:
-                return TriageFinding(
-                    domain_number=5,
-                    domain_name="Security Architecture & Supervision",
-                    status="WARN",
-                    root_cause_summary="System Integrity Protection (SIP) is disabled, placing device out of enterprise compliance.",
-                    technical_evidence=[f"csrutil status output: {sec.get('system_integrity_protection')}"],
-                    remediation_steps_user=["Reboot into Recovery Mode (Command + R or hold power) and enable SIP."],
-                    remediation_steps_admin=["Verify developer or debugging exception before allowing non-compliant Mac."],
-                    escalation_priority="P3 - Medium"
-                )
+        if isinstance(sec, str):
+            sec = {"system_integrity_protection": sec}
+        elif not isinstance(sec, dict):
+            sec = {}
+
+        sip = str(sec.get("system_integrity_protection", "")).lower()
+        if "disabled" in sip:
+            return TriageFinding(
+                domain_number=5,
+                domain_name="Security Architecture & Supervision",
+                status="WARN",
+                root_cause_summary="System Integrity Protection (SIP) is disabled, placing device out of enterprise compliance.",
+                technical_evidence=[f"csrutil status output: {sec.get('system_integrity_protection')}"],
+                remediation_steps_user=["Reboot into Recovery Mode (Command + R or hold power) and enable SIP."],
+                remediation_steps_admin=["Verify developer or debugging exception before allowing non-compliant Mac."],
+                escalation_priority="P3 - Medium"
+            )
 
         return None
 

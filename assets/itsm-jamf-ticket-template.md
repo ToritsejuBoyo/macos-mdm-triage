@@ -14,3 +14,4 @@
 
 ### Recommended Mac Admin Next Steps
 {{ADMIN_REMEDIATION_STEPS}}
+

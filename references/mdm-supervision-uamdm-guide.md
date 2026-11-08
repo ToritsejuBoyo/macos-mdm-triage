@@ -57,3 +57,4 @@ All MDM commands (Jamf, Intune, Kandji) depend on APNs:
 3. **Common Failures:**
    - Wi-Fi firewall blocking port 5223.
    - Expired MDM APNs push certificate on the MDM server.
+

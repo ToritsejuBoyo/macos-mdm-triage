@@ -26,3 +26,4 @@ A technical diagnostic reference for macOS software installation failures in `/v
 | `spctl: rejected` | Gatekeeper Assessment | Hardened runtime violation or untrusted binary. | Enable hardened runtime during compilation (`--options runtime`). |
 | `com.apple.quarantine` | macOS Sandbox | File downloaded via Safari/Chrome flagged with quarantine attribute. | Strip attribute: `xattr -d com.apple.quarantine <file>`. |
 | `Operation not permitted` | Transparency, Consent, and Control (TCC) | Script attempted to access protected user directories without Full Disk Access. | Deploy MDM PPPC profile (`com.apple.TCC.configuration-profile-policy`). |
+

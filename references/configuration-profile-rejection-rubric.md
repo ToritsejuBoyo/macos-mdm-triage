@@ -27,3 +27,4 @@ A diagnostic rubric for troubleshooting Apple configuration profile (`.mobilecon
 | **System Extensions (`com.apple.system-extension-policy`)** | Blocked | Supported | **Yes (Mandatory)** |
 | **Kernel Extensions (`com.apple.syspolicy.kernel-extension-policy`)** | Blocked | Supported (User approved) | **Yes (Mandatory)** |
 | **Application Restrictions (`com.apple.applicationaccess`)** | Basic | Full enforcement | No |
+

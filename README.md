@@ -177,3 +177,4 @@ macos-mdm-triage/
 ## 7. License
 
 MIT License. Copyright (c) 2026 Toritseju Boyo. See [LICENSE](LICENSE) for full text.
+
