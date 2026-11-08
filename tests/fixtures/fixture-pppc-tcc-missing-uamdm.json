@@ -1,0 +1,36 @@
+{
+  "timestamp_utc": "2026-11-08T12:20:00Z",
+  "hostname": "mock-mac-manual-05.local",
+  "serial_number": "C02TESTTCC05",
+  "os_name": "macOS Ventura",
+  "os_version": "13.6.7",
+  "os_build": "22G720",
+  "architecture": "x86_64",
+  "security_state": {
+    "system_integrity_protection": "System Integrity Protection status: enabled.",
+    "gatekeeper_status": "assessments enabled",
+    "filevault_status": "FileVault is On."
+  },
+  "mdm_status": {
+    "enrolled": true,
+    "supervised": false,
+    "user_approved_mdm": false,
+    "bootstrap_token_escrowed": false,
+    "mdm_server_url": "https://intune.synthetic-corp.local"
+  },
+  "agent_daemons": {
+    "jamf_agent_running": false,
+    "intune_agent_running": true,
+    "kandji_agent_running": false
+  },
+  "installed_profiles": [
+    {
+      "profile_name": "CrowdStrike Full Disk Access & TCC Privileges",
+      "payload_identifier": "com.synthetic-corp.security.crowdstrike.tcc",
+      "payload_type": "com.apple.TCC.configuration-profile-policy",
+      "profile_uuid": "00000000-0000-4000-a000-000000000005",
+      "install_error_code": null
+    }
+  ],
+  "install_log_findings": []
+}

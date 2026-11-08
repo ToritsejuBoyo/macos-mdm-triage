@@ -1,0 +1,37 @@
+{
+  "timestamp_utc": "2026-11-08T12:05:00Z",
+  "hostname": "mock-mac-byod-02.local",
+  "serial_number": "C02TESTBYOD2",
+  "os_name": "macOS Sonoma",
+  "os_version": "14.5",
+  "os_build": "23F79",
+  "architecture": "arm64",
+  "security_state": {
+    "system_integrity_protection": "System Integrity Protection status: enabled.",
+    "gatekeeper_status": "assessments enabled",
+    "filevault_status": "FileVault is On."
+  },
+  "mdm_status": {
+    "enrolled": true,
+    "supervised": false,
+    "user_approved_mdm": true,
+    "bootstrap_token_escrowed": false,
+    "mdm_server_url": "https://jamf.synthetic-corp.local:8443"
+  },
+  "agent_daemons": {
+    "jamf_agent_running": true,
+    "intune_agent_running": false,
+    "kandji_agent_running": false
+  },
+  "installed_profiles": [
+    {
+      "profile_name": "Enterprise Security Restrictions & AirDrop Disable",
+      "payload_identifier": "com.synthetic-corp.restrictions.airdrop",
+      "payload_type": "com.apple.applicationaccess",
+      "profile_uuid": "00000000-0000-4000-a000-000000000002",
+      "install_error_code": -20109,
+      "supervision_required": true
+    }
+  ],
+  "install_log_findings": []
+}

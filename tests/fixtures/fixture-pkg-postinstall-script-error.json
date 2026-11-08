@@ -1,0 +1,34 @@
+{
+  "timestamp_utc": "2026-11-08T12:00:00Z",
+  "hostname": "mock-macbook-pro-01.local",
+  "serial_number": "C02TESTPKG01",
+  "os_name": "macOS Sequoia",
+  "os_version": "15.0.1",
+  "os_build": "24A348",
+  "architecture": "arm64",
+  "security_state": {
+    "system_integrity_protection": "System Integrity Protection status: enabled.",
+    "gatekeeper_status": "assessments enabled",
+    "filevault_status": "FileVault is On."
+  },
+  "mdm_status": {
+    "enrolled": true,
+    "supervised": true,
+    "user_approved_mdm": true,
+    "bootstrap_token_escrowed": true,
+    "mdm_server_url": "https://jamf.synthetic-corp.local:8443"
+  },
+  "agent_daemons": {
+    "jamf_agent_running": true,
+    "intune_agent_running": false,
+    "kandji_agent_running": false
+  },
+  "installed_profiles": [],
+  "install_log_findings": [
+    "2026-11-08 11:58:12+0000 installd[820]: PackageKit: Executing script './postinstall' in /private/tmp/PKInstallSandbox.001",
+    "2026-11-08 11:58:13+0000 installd[820]: ./postinstall: line 42: /usr/local/bin/custom_agent: No such file or directory",
+    "2026-11-08 11:58:13+0000 installd[820]: PackageKit: postinstall exited with status 1",
+    "2026-11-08 11:58:13+0000 installd[820]: PackageKit: Install Failed: Error Domain=PKInstallErrorDomain Code=112 \"An error occurred while running scripts from the package \u201cCorpSecurityAgent.pkg\u201d.\"",
+    "2026-11-08 11:58:13+0000 installer[780]: Install failed: The Installer encountered an error that caused the installation to fail."
+  ]
+}

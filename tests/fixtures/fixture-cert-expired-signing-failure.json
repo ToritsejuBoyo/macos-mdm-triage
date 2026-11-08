@@ -1,0 +1,33 @@
+{
+  "timestamp_utc": "2026-11-08T12:10:00Z",
+  "hostname": "mock-mac-design-03.local",
+  "serial_number": "C02TESTEXP03",
+  "os_name": "macOS Sequoia",
+  "os_version": "15.0",
+  "os_build": "24A335",
+  "architecture": "arm64",
+  "security_state": {
+    "system_integrity_protection": "System Integrity Protection status: enabled.",
+    "gatekeeper_status": "assessments enabled",
+    "filevault_status": "FileVault is On."
+  },
+  "mdm_status": {
+    "enrolled": true,
+    "supervised": true,
+    "user_approved_mdm": true,
+    "bootstrap_token_escrowed": true,
+    "mdm_server_url": "https://jamf.synthetic-corp.local:8443"
+  },
+  "agent_daemons": {
+    "jamf_agent_running": true,
+    "intune_agent_running": false,
+    "kandji_agent_running": false
+  },
+  "installed_profiles": [],
+  "install_log_findings": [
+    "2026-11-08 12:08:44+0000 PackageKit: Verifying certificate chain for Developer ID Installer: Vendor Software Ltd (ABC1234XYZ)",
+    "2026-11-08 12:08:44+0000 PackageKit: CSSMERR_TP_NOT_TRUSTED: Certificate expired on 2026-05-15 00:00:00 UTC",
+    "2026-11-08 12:08:44+0000 PackageKit: Install Failed: Package signature validation failed: certificate expired or untrusted developer root",
+    "2026-11-08 12:08:44+0000 installd[910]: Fatal error: package untrusted, aborting deployment."
+  ]
+}

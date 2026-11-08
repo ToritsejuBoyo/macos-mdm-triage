@@ -1,0 +1,36 @@
+{
+  "timestamp_utc": "2026-11-08T12:25:00Z",
+  "hostname": "mock-macbook-pro-hq-06.local",
+  "serial_number": "C02TESTOK006",
+  "os_name": "macOS Sequoia",
+  "os_version": "15.0.1",
+  "os_build": "24A348",
+  "architecture": "arm64",
+  "security_state": {
+    "system_integrity_protection": "System Integrity Protection status: enabled.",
+    "gatekeeper_status": "assessments enabled",
+    "filevault_status": "FileVault is On."
+  },
+  "mdm_status": {
+    "enrolled": true,
+    "supervised": true,
+    "user_approved_mdm": true,
+    "bootstrap_token_escrowed": true,
+    "mdm_server_url": "https://jamf.synthetic-corp.local:8443"
+  },
+  "agent_daemons": {
+    "jamf_agent_running": true,
+    "intune_agent_running": false,
+    "kandji_agent_running": false
+  },
+  "installed_profiles": [
+    {
+      "profile_name": "Corporate 802.1X Wi-Fi",
+      "payload_identifier": "com.synthetic-corp.wifi",
+      "payload_type": "com.apple.wifi.managed",
+      "profile_uuid": "00000000-0000-4000-a000-000000000006",
+      "install_error_code": 0
+    }
+  ],
+  "install_log_findings": []
+}

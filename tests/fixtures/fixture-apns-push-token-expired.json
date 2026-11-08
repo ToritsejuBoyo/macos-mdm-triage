@@ -1,0 +1,34 @@
+{
+  "timestamp_utc": "2026-11-08T12:15:00Z",
+  "hostname": "mock-mac-remote-04.local",
+  "serial_number": "C02TESTAPN04",
+  "os_name": "macOS Sequoia",
+  "os_version": "15.0.1",
+  "os_build": "24A348",
+  "architecture": "arm64",
+  "security_state": {
+    "system_integrity_protection": "System Integrity Protection status: enabled.",
+    "gatekeeper_status": "assessments enabled",
+    "filevault_status": "FileVault is On."
+  },
+  "mdm_status": {
+    "enrolled": true,
+    "supervised": true,
+    "user_approved_mdm": true,
+    "bootstrap_token_escrowed": true,
+    "mdm_server_url": "https://jamf.synthetic-corp.local:8443"
+  },
+  "apns_status": {
+    "push_token_expired": true,
+    "push_handshake_timeout": true,
+    "port_5223_status": "Connection Timed Out to gateway.push.apple.com:5223",
+    "error_detail": "TLS handshake to gateway.push.apple.com:5223 timed out after 30 seconds"
+  },
+  "agent_daemons": {
+    "jamf_agent_running": true,
+    "intune_agent_running": false,
+    "kandji_agent_running": false
+  },
+  "installed_profiles": [],
+  "install_log_findings": []
+}
