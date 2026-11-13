@@ -1,6 +1,16 @@
 ---
 name: macos-mdm-triage
-description: Diagnoses macOS MDM enrollment stalls, Jamf profile rejections, APNs push disconnects, and PackageKit install.log failures across a 6-domain decision tree.
+description: >-
+  Diagnoses macOS MDM enrollment stalls, Jamf profile rejections, APNs push disconnects, and
+  PackageKit install.log failures across a 6-domain decision tree. Use when a Mac fails or stalls
+  during MDM enrollment, a configuration profile is rejected, Jamf policies stop applying, APNs
+  push appears disconnected, or a package install fails in /var/log/install.log.
+license: MIT
+version: 1.0.0
+metadata:
+  standard: agentskills.io
+  dependencies: none (Python standard library only)
+  access: read-only collectors; no state is modified on target systems
 ---
 
 # macOS MDM & Jamf Profile Troubleshooter (`macos-mdm-triage`)
@@ -128,3 +138,42 @@ sudo launchctl bootstrap system /Library/LaunchDaemons/com.jamfsoftware.task.pli
 sudo jamf manage
 sudo jamf recon
 ```
+
+---
+
+## Bundled Resources
+
+Load these on demand — they hold the decision logic behind the 6-domain triage tree.
+
+- **MDM Troubleshooting Matrix:** [`references/macos-mdm-troubleshooting-matrix.md`](references/macos-mdm-troubleshooting-matrix.md) — MDM/package error code tables and PPPC (Privacy Preferences Policy Control) reference.
+- **Profile Rejection Rubric:** [`references/configuration-profile-rejection-rubric.md`](references/configuration-profile-rejection-rubric.md) — Diagnostic rubric for `.mobileconfig` configuration profile installation failures. **Consult for any Domain 2 (profile) verdict.**
+- **Installer Error Codes:** [`references/apple-installer-error-codes.md`](references/apple-installer-error-codes.md) — Apple PackageKit and Installer error codes as they appear in `/var/log/install.log`. **Consult for any Domain 4 (PackageKit) verdict.**
+- **Supervision & UAMDM Guide:** [`references/mdm-supervision-uamdm-guide.md`](references/mdm-supervision-uamdm-guide.md) — Enterprise guide to supervision, User-Approved MDM, and Bootstrap Token hierarchies. **Consult for enrollment and escrow failures.**
+- **Diagnostic Report Template:** [`assets/macos-triage-report-template.md`](assets/macos-triage-report-template.md) — Structured macOS MDM and package deployment assessment report.
+- **ITSM Ticket Template:** [`assets/itsm-jamf-ticket-template.md`](assets/itsm-jamf-ticket-template.md) — Jamf/ITSM escalation ticket brief for Mac deployment failures.
+
+---
+
+## Data Handling & Sanitization
+
+Sanitization runs **client-side, before any output is produced**, so credentials and
+personal data are removed on the operator's machine rather than being sent to a model
+or pasted into a ticket.
+
+Two layers apply:
+
+1. This skill's own domain-aware masking (hostnames, accounts, and the identifiers
+   specific to this domain).
+2. A shared residual pass, [`scripts/sanitizer.py`](scripts/sanitizer.py), vendored
+   identically across every skill in the library. It is the common floor: private keys,
+   cloud provider keys, JWTs and bearer tokens, connection-string passwords, assigned
+   secrets, emails, IPv4/IPv6 addresses, MAC addresses, GUIDs, SSNs, payment card
+   numbers, and phone numbers.
+
+The contract is enforced by `tests/sanitizer_conformance_test.py`, which runs the same
+adversarial corpus in every skill. Documentation placeholders (RFC 5737/3849 addresses,
+RFC 7042 MAC ranges, `example.com` names, and existing `[REDACTED-*]` tokens) are
+preserved, so the pass is safe to apply more than once.
+
+Sanitization is thorough and tested, but it is not a substitute for reading output
+before sharing it outside your organization.
